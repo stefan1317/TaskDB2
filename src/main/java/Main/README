@@ -1,3 +1,0 @@
-Toate testele au fost facute pe PostMan, atat select-urile cat si insert-urile.
-Pentru IBAN am generat cate un UUID, am incercat sa fac un ValueGenerator custom dar mi se pare destul de complicat, o
-sa ma documentez mai mult legat de asta. :)

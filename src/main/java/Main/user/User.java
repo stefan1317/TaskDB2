@@ -1,7 +1,10 @@
 package Main.user;
 
 import lombok.Getter;
-import javax.persistence.*;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Getter
 @Entity
@@ -15,4 +18,16 @@ public class User {
     private int age;
     private String email;
     private String password;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }
