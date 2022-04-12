@@ -1,0 +1,14 @@
+- La "all users’s initials", am presupus ca exista doar un nume si un prenume, iar acestea incep cu litera mare,
+deoarece in implementare am facut ca programul sa ia mereu primul char din nume/prenume indiferent ca e litera mare sau
+litera mica in data base, daca trebuia sa aiba litere de tipar neaparat, puteam sa iteram cu un for prin lista finala iar pentru fiecare
+string sa-i aplicam metoda "toUpperCase";
+
+-La punctul 3, am colectat lista de nume intr-un set, sper ca este suficient asta;
+
+-La punctul 4, la fel ca la punctul 1, am luat prima litera din numele fiecarui user, indiferent ca era cu litera mare
+sau mica in database, pentru a rectifica asta pe acel string pe care il returnam putem aplica metoda "toUpperCase";
+
+BONUS: Am refacut path-urile endpoint-urilor asa cum mi-ai spus.
+
+!!! Sper ca am inteles bine ideea cu bussiness layer, am incercat sa ascund implementarea in interiorul serviciilor pentru
+un cod cat mai curat !!!
