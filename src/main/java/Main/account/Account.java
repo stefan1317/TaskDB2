@@ -22,9 +22,11 @@ public class Account {
     @ManyToOne()
     @JoinColumn(name="user_id")
     private User user;
+    private int money;
 
-    public Account(String currency, User user) {
+    public Account(String currency, User user, int money) {
         this.currency = currency;
         this.user = user;
+        this.money = money;
     }
 }

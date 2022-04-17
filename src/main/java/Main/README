@@ -1,14 +1,23 @@
-- La "all users’s initials", am presupus ca exista doar un nume si un prenume, iar acestea incep cu litera mare,
-deoarece in implementare am facut ca programul sa ia mereu primul char din nume/prenume indiferent ca e litera mare sau
-litera mica in data base, daca trebuia sa aiba litere de tipar neaparat, puteam sa iteram cu un for prin lista finala iar pentru fiecare
-string sa-i aplicam metoda "toUpperCase";
+Am testat implementarea in postman si functioneaza cu tot cu erorile pentru fiecare caz in parte.
+Am explicat functionarea logicii de transfer intr-un JavaDoc in cadrul metodei.
+Am o intrebare, daca ai putea sa-mi lasi un comment cu raspunsul, de ce trebuie sa facem autowired pe o interfata iar apoi
+sa specificam cu qualifier pe care dintre clasele ce implementeaza interfata sa le injectam cand am putea pur si simplu
+sa dam autowired la clasa ceea ce implementeaza interfata direct?
+De exemplu, in cazul meu am dat autowired cu qualifier din cadrul interfetei pentru fiecare clasa ce o implementeaza:
 
--La punctul 3, am colectat lista de nume intr-un set, sper ca este suficient asta;
+@Autowired
+    @Qualifier("external")
+    private TransferMoneyService transferMoneyServiceExternal;
 
--La punctul 4, la fel ca la punctul 1, am luat prima litera din numele fiecarui user, indiferent ca era cu litera mare
-sau mica in database, pentru a rectifica asta pe acel string pe care il returnam putem aplica metoda "toUpperCase";
+dar de ce nu puteam pur si simplu sa dau autowired pe clasa ce implementeaza interfata, adica asa:
 
-BONUS: Am refacut path-urile endpoint-urilor asa cum mi-ai spus.
+@Autowired
+    private ExternalTransferMoneyService externalTransferMoneyService;
 
-!!! Sper ca am inteles bine ideea cu bussiness layer, am incercat sa ascund implementarea in interiorul serviciilor pentru
-un cod cat mai curat !!!
+    P.S: Ierarhia este urmatoarea:        TransferMoneyService
+                                                /       \
+                                               /         \
+                                              /           \
+                                             /             \
+                     ExternalTransferMoneyService       InternalTransferMoneyService
+

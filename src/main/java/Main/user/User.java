@@ -1,7 +1,6 @@
 package Main.user;
 
 import lombok.Getter;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
