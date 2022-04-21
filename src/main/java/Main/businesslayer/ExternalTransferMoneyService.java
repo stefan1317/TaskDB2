@@ -10,9 +10,12 @@ import java.util.Optional;
 
 @Service("external")
 public class ExternalTransferMoneyService implements TransferMoneyService{
+    AccountRepository accountRepository;
 
     @Autowired
-    AccountRepository accountRepository;
+    public ExternalTransferMoneyService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
     @Override
     public void executeTransfer(Optional<Account> sender, Optional<Account> receiver, int money) throws AccountNotFoundException, NotEnoughMoneyException {
