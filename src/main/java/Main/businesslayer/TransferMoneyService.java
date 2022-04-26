@@ -6,5 +6,7 @@ import Main.config.exceptions.NotEnoughMoneyException;
 import java.util.Optional;
 
 public interface TransferMoneyService {
-    void executeTransfer(Optional<Account> sender, Optional<Account> receiver, int money) throws AccountNotFoundException, NotEnoughMoneyException;
+    void executeTransfer(Optional<Account> sender,
+                         Optional<Account> receiver,
+                         int money) throws AccountNotFoundException, NotEnoughMoneyException;
 }

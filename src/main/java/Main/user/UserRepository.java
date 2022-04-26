@@ -24,4 +24,6 @@ public interface UserRepository extends CrudRepository<User, Integer> {
 
     @Query(value = "SELECT * FROM user" , nativeQuery = true)
     List<User> allUsers();
+
+    Optional<User> findByEmailAndPassword(String email, String password);
 }

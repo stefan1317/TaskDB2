@@ -3,8 +3,12 @@ package Main.account;
 import Main.businesslayer.TransferMoneyService;
 import Main.config.exceptions.AccountNotFoundException;
 import Main.config.exceptions.NotEnoughMoneyException;
+import Main.config.exceptions.UnauthorizedException;
 import Main.user.User;
 import Main.user.UserRepository;
+import Main.utils.Utils;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -30,14 +34,18 @@ public class AccountController {
     @Qualifier("internal")
     private TransferMoneyService transferMoneyServiceInternal;
 
+    @Autowired
+    private AccountService accountService;
+
     @GetMapping("/account")
     public List<Account> getAccountById(@RequestParam int id) {
         return accountRepository.findByUserId(id);
     }
 
     @PostMapping("/account/post")
-    public void addAccount(@RequestParam String currency, @RequestParam int id, @RequestParam int money) {
-        Optional<User> user = userRepository.findById(id);
+    public void addAccount(@RequestParam String currency, @RequestParam int money, @CookieValue(name = "auth") String token) {
+        Jws<Claims> jwt = Utils.parseJwt(token);
+        Optional<User> user = userRepository.findById(Integer.parseInt(jwt.getBody().getId()));
         Account account = new Account(currency, user.get(), money);
         accountRepository.save(account);
     }
@@ -49,20 +57,22 @@ public class AccountController {
      */
 
     @PutMapping("/transfer")
-    public ResponseEntity<?> makeTransfer(@RequestParam String ibanSender,
-                                              @RequestParam String ibanReceiver,
-                                              @RequestParam int money) throws NotEnoughMoneyException, AccountNotFoundException {
-        Optional<Account> accountOpS = accountRepository.findByIban(ibanSender);
-        Optional<Account> accountOpR = accountRepository.findByIban(ibanReceiver);
+    public ResponseEntity<?> makeTransfer(@RequestBody AccountTransfer accountTransfer, @CookieValue(name = "auth") String token) throws NotEnoughMoneyException, AccountNotFoundException, UnauthorizedException {
+        Optional<Account> accountOpS = accountRepository.findByIban(accountTransfer.getIbanSender());
+        Optional<Account> accountOpR = accountRepository.findByIban(accountTransfer.getIbanReceiver());
 
-        if(Character.isDigit(ibanSender.charAt(0)) && Character.isDigit(ibanReceiver.charAt(0))) {
-            transferMoneyServiceInternal.executeTransfer(accountOpS, accountOpR, money);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else if (Character.isLetter(ibanReceiver.charAt(0)) || Character.isLetter(ibanSender.charAt(0))){
-            transferMoneyServiceExternal.executeTransfer(accountOpS, accountOpR, money);
-            return new ResponseEntity<>(HttpStatus.OK);
+        if (accountService.validateAccount(accountOpS.get(), Integer.parseInt(Utils.parseJwt(token).getBody().getId()))) {
+            if (Character.isDigit(accountTransfer.getIbanSender().charAt(0)) && Character.isDigit(accountTransfer.getIbanReceiver().charAt(0))) {
+                transferMoneyServiceInternal.executeTransfer(accountOpS, accountOpR, accountTransfer.getMoney());
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else if (Character.isLetter(accountTransfer.getIbanReceiver().charAt(0)) || Character.isLetter(accountTransfer.getIbanSender().charAt(0))) {
+                transferMoneyServiceExternal.executeTransfer(accountOpS, accountOpR, accountTransfer.getMoney());
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            }
         } else {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            throw new UnauthorizedException("You are not the owner!");
         }
     }
 

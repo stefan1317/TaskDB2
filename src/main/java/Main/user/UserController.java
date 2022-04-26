@@ -1,8 +1,13 @@
 package Main.user;
 
+import Main.config.exceptions.UnauthorizedException;
+import Main.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -61,10 +66,21 @@ public class UserController {
     }
 
     @GetMapping("/user/under20")
-        public long getUserUnder20() {
-           List<User> users = userRepository.allUsers();
+    public long getUserUnder20() {
+        List<User> users = userRepository.allUsers();
 
-           return userServices.getNumberOfUsersUnder20(users);
+        return userServices.getNumberOfUsersUnder20(users);
         }
 
+    @PostMapping("/login")
+    public void userLogin(@RequestBody Credentials credentials, HttpServletResponse response) throws UnauthorizedException {
+        Optional<User> userOptional = userRepository.findByEmailAndPassword(credentials.getUsername(), credentials.getPassword());
+
+        if(userOptional.isPresent()) {
+            Cookie cookie = new Cookie("auth", Utils.generateToken(userOptional.get()));
+            response.addCookie(cookie);
+        } else {
+            throw new UnauthorizedException("Credentials are wrong");
+        }
+    }
 }

@@ -1,14 +1,14 @@
-import Main.account.Account;
-import Main.account.AccountController;
-import Main.account.AccountRepository;
+import Main.account.*;
 import Main.businesslayer.ExternalTransferMoneyService;
 import Main.businesslayer.InternalTransferMoneyService;
+import Main.config.exceptions.UnauthorizedException;
 import Main.user.UserServices;
 import Main.config.exceptions.AccountNotFoundException;
 import Main.config.exceptions.NotEnoughMoneyException;
 import Main.user.User;
 import Main.user.UserController;
 import Main.user.UserRepository;
+import Main.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +30,9 @@ public class TestClass {
     UserController userController = new UserController(new UserServices());
 
     @Mock
+    AccountService accountService;
+
+    @Mock
     UserServices userServices;
 
     @Mock
@@ -49,14 +52,14 @@ public class TestClass {
     @Test
     public void testAccountAdd() {
         Optional<User> userOP = Optional.of(new User());
-        Account account = new Account("test", userOP.get(), 1);
+        Account account = new Account("test", userOP.get(), 12);
         when(userRepository.findById(anyInt())).thenReturn(userOP);
-        accountController.addAccount("test", 1,1);
+        accountController.addAccount("test", 12, Utils.generateToken(userOP.get()));
         verify(accountRepository).save(account);
     }
 
     @Test
-    public void testAccountTransferExternal() throws NotEnoughMoneyException, AccountNotFoundException {
+    public void testAccountTransferExternal() throws NotEnoughMoneyException, AccountNotFoundException, UnauthorizedException {
         Optional<Account> optionalAccount1 = Optional.of(new Account());
         optionalAccount1.get().setIban("2s2312");
         optionalAccount1.get().setMoney(200);
@@ -65,13 +68,15 @@ public class TestClass {
         optionalAccount2.get().setMoney(20);
         when(accountRepository.findByIban(anyString())).thenReturn(optionalAccount1);
         when(accountRepository.findByIban(anyString())).thenReturn(optionalAccount2);
+        AccountTransfer accountTransfer= new AccountTransfer(optionalAccount1.get().getIban(),
+                optionalAccount2.get().getIban(), 1);
         accountController.setTransferMoneyServiceInternal(new InternalTransferMoneyService(accountRepository));
-        assertEquals(accountController.makeTransfer(optionalAccount1.get().getIban(),
-                optionalAccount2.get().getIban(), 1).getStatusCode(), HttpStatus.OK);
+        assertEquals(accountController.makeTransfer(accountTransfer, Utils.generateToken(new User())).
+                getStatusCode(), HttpStatus.OK);
     }
 
     @Test
-    public void testAccountTransferInternal() throws NotEnoughMoneyException, AccountNotFoundException {
+    public void testAccountTransferInternal() throws NotEnoughMoneyException, AccountNotFoundException, UnauthorizedException {
         Optional<Account> optionalAccount1 = Optional.of(new Account());
         optionalAccount1.get().setIban("as2312");
         optionalAccount1.get().setMoney(200);
@@ -80,21 +85,25 @@ public class TestClass {
         optionalAccount2.get().setMoney(20);
         when(accountRepository.findByIban(anyString())).thenReturn(optionalAccount1);
         when(accountRepository.findByIban(anyString())).thenReturn(optionalAccount2);
+        AccountTransfer accountTransfer= new AccountTransfer(optionalAccount1.get().getIban(),
+                optionalAccount2.get().getIban(), 1);
         accountController.setTransferMoneyServiceExternal(new ExternalTransferMoneyService(accountRepository));
-        assertEquals(accountController.makeTransfer(optionalAccount1.get().getIban(),
-                optionalAccount2.get().getIban(), 1).getStatusCode(), HttpStatus.OK);
+        assertEquals(accountController.makeTransfer(accountTransfer, Utils.generateToken(new User())).
+                getStatusCode(), HttpStatus.OK);
     }
 
     @Test
-    public void testAccountTransferConflict() throws NotEnoughMoneyException, AccountNotFoundException {
+    public void testAccountTransferConflict() throws NotEnoughMoneyException, AccountNotFoundException, UnauthorizedException {
         Optional<Account> optionalAccount1 = Optional.of(new Account());
         optionalAccount1.get().setIban("#s2312");
         optionalAccount1.get().setMoney(200);
         Optional<Account> optionalAccount2 = Optional.of(new Account());
         optionalAccount2.get().setIban("@233");
         optionalAccount2.get().setMoney(20);
-        assertEquals(accountController.makeTransfer(optionalAccount1.get().getIban(),
-                optionalAccount2.get().getIban(), 1).getStatusCode(), HttpStatus.CONFLICT);
+        AccountTransfer accountTransfer= new AccountTransfer(optionalAccount1.get().getIban(),
+                optionalAccount2.get().getIban(), 1);
+        assertEquals(accountController.makeTransfer(accountTransfer, Utils.generateToken(new User())).
+                getStatusCode(), HttpStatus.CONFLICT);
     }
 
     @Test
