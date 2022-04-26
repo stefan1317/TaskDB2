@@ -1,6 +1,5 @@
 package Main.user;
 
-import Main.businesslayer.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -8,19 +7,21 @@ import java.util.Set;
 
 @RestController
 public class UserController {
+    UserServices userServices;
+    @Autowired
+    public UserController(UserServices userServices) {
+        this.userServices = userServices;
+    }
 
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    UserServices userServices;
-
-    @GetMapping("/user/get")
+    @GetMapping("/user")
     public User getUserById(@RequestParam int id) {
         return userRepository.findById(id).get();
     }
 
-    @GetMapping("/user/get/name")
+    @GetMapping("/user/name")
     public List<User> getUserByName(@RequestParam String name) {
         return userRepository.findByFirstName(name);
     }
@@ -45,7 +46,7 @@ public class UserController {
         return userServices.mailService(mails);
     }
 
-    @GetMapping("/user/name")
+    @GetMapping("/user/names")
     public Set<String> getUserNames() {
         List<String> names = userRepository.allByLastName();
 

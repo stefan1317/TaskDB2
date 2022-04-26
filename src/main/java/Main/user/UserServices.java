@@ -1,6 +1,5 @@
-package Main.businesslayer;
+package Main.user;
 
-import Main.user.User;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;

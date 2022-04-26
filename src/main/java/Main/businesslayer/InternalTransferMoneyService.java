@@ -11,9 +11,12 @@ import java.util.Optional;
 
 @Service("internal")
 public class InternalTransferMoneyService implements TransferMoneyService{
-
-    @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    public InternalTransferMoneyService( AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
 
     @Transient
     @Override

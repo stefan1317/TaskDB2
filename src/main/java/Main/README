@@ -1,23 +1,5 @@
-Am testat implementarea in postman si functioneaza cu tot cu erorile pentru fiecare caz in parte.
-Am explicat functionarea logicii de transfer intr-un JavaDoc in cadrul metodei.
-Am o intrebare, daca ai putea sa-mi lasi un comment cu raspunsul, de ce trebuie sa facem autowired pe o interfata iar apoi
-sa specificam cu qualifier pe care dintre clasele ce implementeaza interfata sa le injectam cand am putea pur si simplu
-sa dam autowired la clasa ceea ce implementeaza interfata direct?
-De exemplu, in cazul meu am dat autowired cu qualifier din cadrul interfetei pentru fiecare clasa ce o implementeaza:
+Am incercat sa fac mock-uri pentru toate serviciile si repository-urile. Sper ca am facut ceea ce trebuia sa fac.
 
-@Autowired
-    @Qualifier("external")
-    private TransferMoneyService transferMoneyServiceExternal;
+Pe ambele controllere am reusit sa testez in procent de 100%.
 
-dar de ce nu puteam pur si simplu sa dau autowired pe clasa ce implementeaza interfata, adica asa:
-
-@Autowired
-    private ExternalTransferMoneyService externalTransferMoneyService;
-
-    P.S: Ierarhia este urmatoarea:        TransferMoneyService
-                                                /       \
-                                               /         \
-                                              /           \
-                                             /             \
-                     ExternalTransferMoneyService       InternalTransferMoneyService
-
+Pentru testare trebuie rulata clasa TestClass din test -> java -> TestClass.

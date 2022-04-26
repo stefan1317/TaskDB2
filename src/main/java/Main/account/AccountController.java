@@ -30,8 +30,8 @@ public class AccountController {
     @Qualifier("internal")
     private TransferMoneyService transferMoneyServiceInternal;
 
-    @GetMapping("/account/get")
-    List<Account> getAccountById(@RequestParam int id) {
+    @GetMapping("/account")
+    public List<Account> getAccountById(@RequestParam int id) {
         return accountRepository.findByUserId(id);
     }
 
@@ -48,8 +48,8 @@ public class AccountController {
      * o litera vom aplica un tranfer extern.(Primul caracter din iban-ul sender-ului)
      */
 
-    @PutMapping("/account/payment")
-    public ResponseEntity<?> getAccountByIban(@RequestParam String ibanSender,
+    @PutMapping("/transfer")
+    public ResponseEntity<?> makeTransfer(@RequestParam String ibanSender,
                                               @RequestParam String ibanReceiver,
                                               @RequestParam int money) throws NotEnoughMoneyException, AccountNotFoundException {
         Optional<Account> accountOpS = accountRepository.findByIban(ibanSender);
@@ -64,5 +64,13 @@ public class AccountController {
         } else {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
+    }
+
+    public void setTransferMoneyServiceExternal(TransferMoneyService transferMoneyServiceExternal) {
+        this.transferMoneyServiceExternal = transferMoneyServiceExternal;
+    }
+
+    public void setTransferMoneyServiceInternal(TransferMoneyService transferMoneyServiceInternal) {
+        this.transferMoneyServiceInternal = transferMoneyServiceInternal;
     }
 }
